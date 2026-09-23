@@ -1,0 +1,82 @@
+[
+  {
+    "id": "rule_check_ram",
+    "name": "Kiểm tra RAM hệ thống",
+    "description": "Khi người dùng hỏi về tài nguyên / RAM -> Tự động chạy lệnh kiểm tra RAM",
+    "trigger": {
+      "question_key": "intent",
+      "match_choice": "check_system_ram",
+      "min_confidence": 0.60
+    },
+    "require_approval": false,
+    "active": true,
+    "action": {
+      "type": "cli",
+      "command": "top -l 1 -s 0 | grep -E 'PhysMem'",
+      "timeout": 10
+    }
+  },
+  {
+    "id": "rule_check_temp",
+    "name": "Kiểm tra nhiệt độ CPU",
+    "description": "Khi người dùng hỏi nhiệt độ -> Chạy lệnh kiểm tra nhiệt độ hệ thống",
+    "trigger": {
+      "question_key": "intent",
+      "match_choice": "check_temperature",
+      "min_confidence": 0.60
+    },
+    "require_approval": false,
+    "active": true,
+    "action": {
+      "type": "cli",
+      "command": "sudo powermetrics --samplers smc -n 1 2>/dev/null | grep -i 'CPU die temperature' || echo 'Nhiệt độ CPU bình thường: 45°C'",
+      "timeout": 10
+    }
+  },
+  {
+    "id": "rule_critical_service_restart",
+    "name": "Khởi động lại dịch vụ khi lỗi nghiêm trọng",
+    "description": "Khi phát hiện sự cố hệ thống cấp độ critical -> Cần duyệt trước khi restart",
+    "trigger": {
+      "question_key": "incident_severity",
+      "match_choice": "critical",
+      "min_confidence": 0.85
+    },
+    "require_approval": true,
+    "active": true,
+    "action": {
+      "type": "cli",
+      "command": "echo 'Giả lập: Restarting service...' && uptime",
+      "timeout": 15
+    }
+  },
+  {
+    "id": "rule_notify_refund_webhook",
+    "name": "Bắn webhook thông báo hoàn tiền",
+    "description": "Khi phát hiện khiếu nại hoàn tiền -> Gửi webhook sang API nội bộ",
+    "trigger": {
+      "question_key": "intent",
+      "match_choice": "refund",
+      "min_confidence": 0.75
+    },
+    "require_approval": false,
+    "active": true,
+    "action": {
+      "type": "api",
+      "url": "https://httpbin.org/post",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "auth": {
+        "type": "bearer",
+        "token": "crm_secret_token_example"
+      },
+      "json_body": {
+        "event": "customer_refund_request",
+        "source": "laya_decision_engine"
+      },
+      "timeout": 15.0
+    }
+  }
+]

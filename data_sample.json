@@ -1,0 +1,66 @@
+[
+  {
+    "state": "Khách hàng nhắn: Tôi đã thanh toán tiền nhưng tài khoản chưa được cộng điểm, vui lòng hỗ trợ hoàn tiền hoặc cộng điểm gấp.",
+    "question": {
+      "type": "choice",
+      "instructions": "Phân loại ý định khách hàng trong thông điệp trên:",
+      "criteria": {
+        "refund": "Yêu cầu trả lại tiền hoặc hủy giao dịch",
+        "technical_support": "Lỗi kỹ thuật hệ thống, điểm chưa cộng",
+        "inquiry": "Hỏi thông tin chung về bảng giá và dịch vụ",
+        "complaint": "Khiếu nại về thái độ phục vụ"
+      }
+    },
+    "label": "refund"
+  },
+  {
+    "state": "Hệ thống gặp lỗi kết nối cơ sở dữ liệu khi gọi API /api/v1/orders, mã lỗi trả về 500 Internal Server Error.",
+    "question": {
+      "type": "choice",
+      "instructions": "Phân loại mức độ nghiêm trọng của sự cố kỹ thuật:",
+      "criteria": {
+        "critical": "Hệ thống sập, dịch vụ cốt lõi không hoạt động",
+        "warning": "Tính năng phụ bị chậm hoặc cảnh báo tài nguyên",
+        "info": "Thông tin log bình thường"
+      }
+    },
+    "label": "critical"
+  },
+  {
+    "state": "Cho tôi hỏi chi phí gói doanh nghiệp một năm là bao nhiêu và có xuất hóa đơn VAT không?",
+    "question": {
+      "type": "choice",
+      "instructions": "Phân loại câu hỏi của khách hàng:",
+      "criteria": {
+        "pricing_inquiry": "Hỏi về giá cước, chính sách hóa đơn, gói dịch vụ",
+        "account_management": "Yêu cầu thay đổi mật khẩu hoặc thông tin cá nhân",
+        "bug_report": "Báo cáo lỗi phần mềm"
+      }
+    },
+    "label": "pricing_inquiry"
+  },
+  {
+    "state": "Dịch vụ của các bạn quá tệ, tôi nhắn tin từ sáng không ai trả lời, làm ăn rất thiếu chuyên nghiệp!",
+    "question": {
+      "type": "noul",
+      "instructions": "Nội dung phản ánh có mang sắc thái tiêu cực/khiếu nại hay không?",
+      "criteria": {
+        "false": "Không, tin nhắn trung tính hoặc tích cực",
+        "true": "Có, tin nhắn bày tỏ sự bực tức, bức xúc hoặc khiếu nại"
+      }
+    },
+    "label": "true"
+  },
+  {
+    "state": "Chào em, hướng dẫn giúp anh cách đổi mật khẩu tài khoản trên ứng dụng di động nhé.",
+    "question": {
+      "type": "noul",
+      "instructions": "Nội dung phản ánh có mang sắc thái tiêu cực/khiếu nại hay không?",
+      "criteria": {
+        "false": "Không, tin nhắn trung tính hoặc tích cực",
+        "true": "Có, tin nhắn bày tỏ sự bực tức, bức xúc hoặc khiếu nại"
+      }
+    },
+    "label": "false"
+  }
+]

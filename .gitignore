@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / URL
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Model weights & large binary files (use Git LFS or HuggingFace if sharing)
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# OS & Environment
+.DS_Store
+*.log
+.env
+.venv
+env/
+venv/
