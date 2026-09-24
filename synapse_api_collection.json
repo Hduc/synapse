@@ -1,0 +1,202 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Synapse Decision & Automation Engine",
+  "dateExported": "2026-09-24",
+  "version": "1.1",
+  "folders": [
+    {
+      "_id": "folder_inference",
+      "name": "1. Decision & Inference Engine",
+      "containerId": "",
+      "created": "2026-09-24"
+    },
+    {
+      "_id": "folder_presets",
+      "name": "2. Presets (Bộ câu hỏi chuẩn)",
+      "containerId": "",
+      "created": "2026-09-24"
+    },
+    {
+      "_id": "folder_utils",
+      "name": "3. Utilities (Email & Ngôn ngữ)",
+      "containerId": "",
+      "created": "2026-09-24"
+    },
+    {
+      "_id": "folder_rules",
+      "name": "4. Rule Engine (CRUD & Toggle)",
+      "containerId": "",
+      "created": "2026-09-24"
+    },
+    {
+      "_id": "folder_approvals",
+      "name": "5. Approval Workflow (Hàng đợi duyệt)",
+      "containerId": "",
+      "created": "2026-09-24"
+    }
+  ],
+  "requests": [
+    {
+      "_id": "req_system_health",
+      "colId": "",
+      "containerId": "",
+      "name": "System Info & Status",
+      "url": "{{base_url}}/",
+      "method": "GET"
+    },
+    {
+      "_id": "req_predict_standard",
+      "colId": "",
+      "containerId": "folder_inference",
+      "name": "POST /predict - Standard Decision (Hỗ trợ & hoàn tiền)",
+      "url": "{{base_url}}/predict",
+      "method": "POST",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"state\": \"App liên tục bị đơ khi thanh toán, tôi muốn được hoàn tiền lại vào tài khoản!\",\n  \"questions\": {\n    \"intent\": {\n      \"type\": \"choice\",\n      \"instructions\": \"Xác định nhu cầu chính của khách hàng:\",\n      \"criteria\": {\n        \"refund\": \"Yêu cầu hoàn trả tiền / khiếu nại cước phí\",\n        \"check_system_ram\": \"Hỏi tài nguyên bộ nhớ RAM\",\n        \"check_temperature\": \"Hỏi nhiệt độ hệ thống\",\n        \"other\": \"Các vấn đề khác\"\n      }\n    },\n    \"frustrated\": {\n      \"type\": \"noul\",\n      \"instructions\": \"Khách hàng có đang cảm thấy bực mình hoặc khó chịu không?\"\n    }\n  },\n  \"auto_trigger\": true\n}"
+      }
+    },
+    {
+      "_id": "req_predict_critical",
+      "colId": "",
+      "containerId": "folder_inference",
+      "name": "POST /predict - Sự cố Critical (Kích hoạt tạo Approval ticket)",
+      "url": "{{base_url}}/predict",
+      "method": "POST",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"state\": \"Cảnh báo khẩn cấp: Cơ sở dữ liệu sập toàn tập, toàn bộ giao dịch người dùng bị gián đoạn nghiêm trọng!\",\n  \"questions\": {\n    \"incident_severity\": {\n      \"type\": \"choice\",\n      \"instructions\": \"Mức độ nghiêm trọng của sự cố:\",\n      \"criteria\": {\n        \"critical\": \"Sự cố tê liệt toàn hệ thống hoặc mất dữ liệu nghiêm trọng\",\n        \"warning\": \"Cảnh báo quá tải hoặc suy giảm hiệu năng nhẹ\",\n        \"info\": \"Thông tin vận hành thông thường\"\n      }\n    }\n  },\n  \"auto_trigger\": true\n}"
+      }
+    },
+    {
+      "_id": "req_predict_shortlist",
+      "colId": "",
+      "containerId": "folder_inference",
+      "name": "POST /predict/shortlist - Lọc Top K lựa chọn (High-Cardinality)",
+      "url": "{{base_url}}/predict/shortlist",
+      "method": "POST",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"state\": \"Tôi muốn gửi thông báo chấm dứt hợp đồng dịch vụ và đóng tài khoản.\",\n  \"questions\": {\n    \"action_target\": {\n      \"type\": \"choice\",\n      \"instructions\": \"Phân loại phòng ban xử lý:\",\n      \"criteria\": {\n        \"finance_invoice\": \"Kế toán & Hóa đơn VAT\",\n        \"tech_bug\": \"Bộ phận Kỹ thuật & Báo lỗi phần mềm\",\n        \"contract_termination\": \"Bộ phận Pháp chế & Hủy hợp đồng / Rời dịch vụ\",\n        \"sales_consult\": \"Tư vấn mua thêm gói cước / Upsell\",\n        \"security_incident\": \"Báo cáo an toàn thông tin & Hack\",\n        \"hr_recruitment\": \"Tuyển dụng nhân sự và ứng tuyển việc làm\",\n        \"general_feedback\": \"Góp ý cải thiện dịch vụ chung\"\n      }\n    }\n  },\n  \"k\": 3,\n  \"auto_trigger\": false\n}"
+      }
+    },
+    {
+      "_id": "req_presets_list",
+      "colId": "",
+      "containerId": "folder_presets",
+      "name": "GET /presets - Danh sách Presets có sẵn",
+      "url": "{{base_url}}/presets",
+      "method": "GET"
+    },
+    {
+      "_id": "req_presets_detail",
+      "colId": "",
+      "containerId": "folder_presets",
+      "name": "GET /presets/triage - Chi tiết Preset Triage",
+      "url": "{{base_url}}/presets/triage",
+      "method": "GET"
+    },
+    {
+      "_id": "req_presets_guard",
+      "colId": "",
+      "containerId": "folder_presets",
+      "name": "GET /presets/guard - Chi tiết Preset Guard (Bảo vệ an toàn)",
+      "url": "{{base_url}}/presets/guard",
+      "method": "GET"
+    },
+    {
+      "_id": "req_clean_email",
+      "colId": "",
+      "containerId": "folder_utils",
+      "name": "POST /utils/clean-email - Làm sạch Email thô",
+      "url": "{{base_url}}/utils/clean-email",
+      "method": "POST",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"subject\": \"Yêu cầu kiểm tra tài khoản\",\n  \"raw_email\": \"Chào ban quản trị,\\nTôi bị lỗi khi truy cập trang thanh toán, xin vui lòng kiểm tra giúp.\\n\\n--\\nTrân trọng,\\nNguyễn Hoàng Đức\\nPhone: 0901234567\\nSent from my iPhone\"\n}"
+      }
+    },
+    {
+      "_id": "req_detect_lang",
+      "colId": "",
+      "containerId": "folder_utils",
+      "name": "POST /utils/detect-lang - Phân tích Tiếng Việt & Dấu thanh",
+      "url": "{{base_url}}/utils/detect-lang",
+      "method": "POST",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"text\": \"Mô hình System 1 phân loại ý định người dùng với độ trễ cực thấp dưới hai mươi mili giây.\"\n}"
+      }
+    },
+    {
+      "_id": "req_rules_list",
+      "colId": "",
+      "containerId": "folder_rules",
+      "name": "GET /rules - Lấy tất cả Rule",
+      "url": "{{base_url}}/rules",
+      "method": "GET"
+    },
+    {
+      "_id": "req_rules_create_api",
+      "colId": "",
+      "containerId": "folder_rules",
+      "name": "POST /rules - Tạo Rule mới (REST API Webhook)",
+      "url": "{{base_url}}/rules",
+      "method": "POST",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Gửi thông báo Telegram khi phát hiện gian lận\",\n  \"description\": \"Tự động gọi webhook khi model phát hiện fraud\",\n  \"active\": true,\n  \"require_approval\": false,\n  \"trigger\": {\n    \"question_key\": \"is_fraud\",\n    \"match_noul\": true,\n    \"min_confidence\": 0.8\n  },\n  \"action\": {\n    \"type\": \"api\",\n    \"url\": \"https://httpbin.org/post\",\n    \"method\": \"POST\",\n    \"headers\": {\n      \"Content-Type\": \"application/json\"\n    },\n    \"auth\": {\n      \"type\": \"bearer\",\n      \"token\": \"tele_bot_secret_token\"\n    },\n    \"json_body\": {\n      \"alert\": \"Phát hiện gian lận giao dịch!\",\n      \"details\": \"{{context.state}}\"\n    },\n    \"timeout\": 10\n  }\n}"
+      }
+    },
+    {
+      "_id": "req_rules_toggle",
+      "colId": "",
+      "containerId": "folder_rules",
+      "name": "PATCH /rules/{id}/toggle - Bật/Tắt Rule hoặc Chế độ duyệt",
+      "url": "{{base_url}}/rules/rule_check_ram/toggle?active=true&require_approval=false",
+      "method": "PATCH"
+    },
+    {
+      "_id": "req_approvals_list",
+      "colId": "",
+      "containerId": "folder_approvals",
+      "name": "GET /approvals - Danh sách yêu cầu chờ duyệt",
+      "url": "{{base_url}}/approvals",
+      "method": "GET"
+    },
+    {
+      "_id": "req_approvals_approve",
+      "colId": "",
+      "containerId": "folder_approvals",
+      "name": "POST /approvals/{id}/approve - Phê duyệt thực thi",
+      "url": "{{base_url}}/approvals/appr_e3942b1e/approve",
+      "method": "POST"
+    },
+    {
+      "_id": "req_approvals_reject",
+      "colId": "",
+      "containerId": "folder_approvals",
+      "name": "POST /approvals/{id}/reject - Từ chối thực thi",
+      "url": "{{base_url}}/approvals/appr_e3942b1e/reject?reason=Khong_cho_phep_restart_gio_cao_diem",
+      "method": "POST"
+    }
+  ]
+}

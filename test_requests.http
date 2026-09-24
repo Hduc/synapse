@@ -1,0 +1,211 @@
+@baseUrl = http://127.0.0.1:8000
+# @baseUrl = https://agriculture-manner-glass-influenced.trycloudflare.com
+
+### 0. System Info & Health
+GET {{baseUrl}}/
+Accept: application/json
+
+###
+GET {{baseUrl}}/health
+Accept: application/json
+
+
+# ==============================================================================
+# 1. DECISION & PREDICT ENGINE (System 1 Inference)
+# ==============================================================================
+
+### 1.1 Predict Tiêu Chuẩn (Ví dụ khiếu nại hoàn tiền -> Auto trigger Rule Bắn Webhook)
+POST {{baseUrl}}/predict
+Content-Type: application/json
+
+{
+  "state": "Ứng dụng liên tục bị lỗi khi thanh toán, tôi muốn được hoàn tiền lại vào thẻ!",
+  "questions": {
+    "intent": {
+      "type": "choice",
+      "instructions": "Xác định nhu cầu chính của khách hàng:",
+      "criteria": {
+        "refund": "Yêu cầu hoàn tiền hoặc khiếu nại giao dịch",
+        "check_system_ram": "Hỏi về tài nguyên RAM máy chủ",
+        "check_temperature": "Hỏi về nhiệt độ CPU",
+        "other": "Các vấn đề khác"
+      }
+    },
+    "frustrated": {
+      "type": "noul",
+      "instructions": "Khách hàng có đang cảm thấy bức xúc không?"
+    }
+  },
+  "auto_trigger": true
+}
+
+### 1.2 Predict Sự Cố Critical (-> Tự động đưa vào Hàng đợi chờ duyệt /approvals)
+POST {{baseUrl}}/predict
+Content-Type: application/json
+
+{
+  "state": "Ứng dụng bị sập toàn bộ dịch vụ, khách hàng không thể thanh toán được!",
+  "questions": {
+    "incident_severity": {
+      "type": "choice",
+      "instructions": "Mức độ nghiêm trọng của sự cố kỹ thuật:",
+      "criteria": {
+        "critical": "Sự cố nghiêm trọng gây tê liệt dịch vụ",
+        "warning": "Cảnh báo hiệu năng suy giảm nhẹ",
+        "info": "Thông tin log hệ thống bình thường"
+      }
+    }
+  },
+  "auto_trigger": true
+}
+
+### 1.3 Predict Coarse-to-Fine Shortlist (Tập lựa chọn lớn, chọn Top-K trước khi chấm điểm)
+POST {{baseUrl}}/predict/shortlist
+Content-Type: application/json
+
+{
+  "state": "Tôi muốn gửi thông báo chấm dứt hợp đồng dịch vụ và đóng tài khoản.",
+  "questions": {
+    "target_department": {
+      "type": "choice",
+      "instructions": "Chọn phòng ban tiếp nhận xử lý:",
+      "criteria": {
+        "finance_invoice": "Kế toán: Thanh toán và hóa đơn đỏ",
+        "tech_support": "Kỹ thuật: Hỗ trợ lỗi ứng dụng",
+        "contract_cancellation": "Pháp chế & Hợp đồng: Hủy dịch vụ, thanh lý hợp đồng",
+        "sales_consult": "Kinh doanh: Mua thêm gói dịch vụ",
+        "security_team": "An ninh mạng: Báo cáo hack hoặc rò rỉ dữ liệu",
+        "hr_recruitment": "Nhân sự: Ứng tuyển và tuyển dụng",
+        "customer_care": "CSKH: Giải đáp thắc mắc thông thường"
+      }
+    }
+  },
+  "k": 3,
+  "auto_trigger": false
+}
+
+
+# ==============================================================================
+# 2. PRESETS (Bộ câu hỏi chuẩn Laya)
+# ==============================================================================
+
+### 2.1 Danh sách tất cả Presets
+GET {{baseUrl}}/presets
+Accept: application/json
+
+### 2.2 Xem chi tiết Preset Triage (Customer Support)
+GET {{baseUrl}}/presets/triage
+Accept: application/json
+
+### 2.3 Xem chi tiết Preset Guard (Bảo vệ AI & Prompt Injection)
+GET {{baseUrl}}/presets/guard
+Accept: application/json
+
+### 2.4 Xem chi tiết Preset Email
+GET {{baseUrl}}/presets/email
+Accept: application/json
+
+### 2.5 Xem chi tiết Preset Moderation
+GET {{baseUrl}}/presets/moderation
+Accept: application/json
+
+### 2.6 Xem chi tiết Preset Router
+GET {{baseUrl}}/presets/router
+Accept: application/json
+
+
+# ==============================================================================
+# 3. UTILITIES (Làm sạch Email & Phân tích Ngôn ngữ)
+# ==============================================================================
+
+### 3.1 Tiền xử lý & Làm sạch Email (bỏ chữ ký, footer, quote history)
+POST {{baseUrl}}/utils/clean-email
+Content-Type: application/json
+
+{
+  "subject": "Yêu cầu hủy gói cước Premium",
+  "raw_email": "Chào ban hỗ trợ,\nTôi muốn hủy đăng ký gói dịch vụ từ tháng tới.\n\n--\nNguyễn Hoàng Đức\nMobile: 0901234567\nSent from my iPhone"
+}
+
+### 3.2 Phân tích chữ viết, dấu thanh tiếng Việt và độ dài
+POST {{baseUrl}}/utils/detect-lang
+Content-Type: application/json
+
+{
+  "text": "Synapse là hệ thống ra quyết định siêu tốc với độ trễ dưới 20 mili giây."
+}
+
+
+# ==============================================================================
+# 4. RULE ENGINE (CRUD & Quản lý quy tắc)
+# ==============================================================================
+
+### 4.1 Lấy toàn bộ danh sách Rule
+GET {{baseUrl}}/rules
+Accept: application/json
+
+### 4.2 Lọc các rule đang kích hoạt
+GET {{baseUrl}}/rules?active_only=true
+Accept: application/json
+
+### 4.3 Lọc các rule yêu cầu duyệt (require_approval=true)
+GET {{baseUrl}}/rules?require_approval_only=true
+Accept: application/json
+
+### 4.4 Thêm một Rule mới (Gọi REST API Webhook)
+POST {{baseUrl}}/rules
+Content-Type: application/json
+
+{
+  "name": "Bắn webhook thông báo khiếu nại",
+  "description": "Khi phát hiện khiếu nại -> Bắn sang hệ thống bên ngoài",
+  "active": true,
+  "require_approval": false,
+  "trigger": {
+    "question_key": "intent",
+    "match_choice": "refund",
+    "min_confidence": 0.7
+  },
+  "action": {
+    "type": "api",
+    "url": "https://httpbin.org/post",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "auth": {
+      "type": "bearer",
+      "token": "secret_api_token"
+    },
+    "json_body": {
+      "event": "customer_refund_alert",
+      "user_message": "{{context.state}}"
+    },
+    "timeout": 10
+  }
+}
+
+### 4.5 Bật/Tắt Rule hoặc chế độ Approval
+PATCH {{baseUrl}}/rules/rule_check_ram/toggle?active=true&require_approval=false
+Accept: application/json
+
+### 4.6 Xóa một Rule theo ID
+DELETE {{baseUrl}}/rules/rule_notify_refund_webhook
+Accept: application/json
+
+
+# ==============================================================================
+# 5. APPROVAL WORKFLOW (Hàng đợi phê duyệt)
+# ==============================================================================
+
+### 5.1 Xem danh sách tác vụ đang chờ duyệt
+GET {{baseUrl}}/approvals
+Accept: application/json
+
+### 5.2 Phê duyệt và thực thi ngay lệnh đang chờ (Thay {approval_id} từ kết quả 5.1)
+POST {{baseUrl}}/approvals/appr_e3942b1e/approve
+Accept: application/json
+
+### 5.3 Từ chối thực thi lệnh đang chờ
+POST {{baseUrl}}/approvals/appr_e3942b1e/reject?reason=Nghi_van_bao_dong_gia
+Accept: application/json
