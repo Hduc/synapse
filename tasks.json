@@ -1,0 +1,32 @@
+[
+  {
+    "id": "task_1",
+    "title": "Tích hợp Synapse UI Resolver vào Next.js Frontend",
+    "description": "Viết hook useComponentResolver và DynamicComponentRenderer",
+    "assigned_to": "Nguyễn Hoàng Đức",
+    "status": "in_progress",
+    "priority": "high",
+    "due_date": "2026-09-26",
+    "created_at": 1790250000
+  },
+  {
+    "id": "task_2",
+    "title": "Thiết kế Form Đăng ký Sự kiện Trung thu",
+    "description": "Chuẩn hóa props và các trường nhập liệu số điện thoại, người đi cùng",
+    "assigned_to": "Trần Thị Mai",
+    "status": "todo",
+    "priority": "medium",
+    "due_date": "2026-09-25",
+    "created_at": 1790251000
+  },
+  {
+    "id": "task_3",
+    "title": "Báo cáo Hiệu quả Nhân sự Quý 3",
+    "description": "Tổng kết bảng đánh giá KPI nhân sự toàn công ty",
+    "assigned_to": "Lê Văn Hưng",
+    "status": "review",
+    "priority": "high",
+    "due_date": "2026-09-28",
+    "created_at": 1790252000
+  }
+]

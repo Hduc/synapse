@@ -1,0 +1,110 @@
+[
+  {
+    "id": "comp_event_registration_form",
+    "name": "EventRegistrationForm",
+    "module": "form",
+    "title": "Form Đăng Ký Sự Kiện",
+    "description": "Component form thu thập thông tin người tham gia sự kiện (Trung thu, hội thảo, sinh nhật công ty, teambuilding)",
+    "keywords": ["tạo form", "đăng ký sự kiện", "trung thu", "hội thảo", "form đăng ký", "sự kiện"],
+    "props_schema": {
+      "title": {"type": "string", "required": true, "description": "Tiêu đề của form"},
+      "event_name": {"type": "string", "required": true, "description": "Tên sự kiện"},
+      "event_date": {"type": "string", "required": false, "description": "Thời gian tổ chức (YYYY-MM-DD)"},
+      "location": {"type": "string", "required": false, "description": "Địa điểm tổ chức"},
+      "fields": {
+        "type": "array",
+        "required": true,
+        "description": "Danh sách các input fields",
+        "default": [
+          {"name": "fullname", "label": "Họ và tên", "type": "text", "required": true, "placeholder": "Nguyễn Văn A"},
+          {"name": "phone", "label": "Số điện thoại", "type": "tel", "required": true, "placeholder": "0901234567"},
+          {"name": "department", "label": "Phòng ban / Đơn vị", "type": "select", "options": ["Kinh doanh", "Kỹ thuật", "Marketing", "Nhân sự", "Khách mời"], "required": false},
+          {"name": "attendees_count", "label": "Số người tham gia", "type": "number", "default": 1, "required": true}
+        ]
+      },
+      "submit_button_text": {"type": "string", "default": "Xác nhận đăng ký"}
+    },
+    "data_binding": {
+      "submit_api": "/api/events/register",
+      "method": "POST"
+    },
+    "sample_props": {
+      "title": "Đăng Ký Tham Gia Lễ Hội Trăng Rằm - Trung Thu 2026",
+      "event_name": "Đêm Hội Trăng Rằm",
+      "event_date": "2026-09-25",
+      "location": "Hội trường Tầng 5",
+      "submit_button_text": "Gửi đăng ký ngay"
+    }
+  },
+  {
+    "id": "comp_employee_efficiency_table",
+    "name": "EmployeeEfficiencyReportTable",
+    "module": "report",
+    "title": "Bảng Báo Cáo Hiệu Quả Làm Việc",
+    "description": "Component hiển thị báo cáo năng suất, KPI, số task hoàn thành và đánh giá hiệu quả của nhân viên",
+    "keywords": ["báo cáo", "ai làm việc hiệu quả", "năng suất", "kpi", "hiệu quả công việc", "nhân viên xuất sắc"],
+    "props_schema": {
+      "title": {"type": "string", "required": true, "description": "Tiêu đề bảng báo cáo"},
+      "period": {"type": "string", "required": false, "description": "Kỳ đánh giá (tuần, tháng, quý)", "default": "thang_nay"},
+      "department": {"type": "string", "required": false, "description": "Lọc theo phòng ban"},
+      "columns": {
+        "type": "array",
+        "default": ["Nhân viên", "Phòng ban", "Tasks Hoàn thành", "Đúng hạn (%)", "Điểm KPI", "Xếp loại"]
+      },
+      "sort_by": {"type": "string", "default": "kpi_score_desc"}
+    },
+    "data_binding": {
+      "fetch_api": "/datasources/ds_employee_kpi/fetch",
+      "method": "POST",
+      "query_template": "SELECT emp_name, dept, tasks_done, on_time_rate, kpi_score, rank FROM employee_stats ORDER BY kpi_score DESC"
+    },
+    "sample_props": {
+      "title": "Báo Cáo Hiệu Quả Làm Việc Nhân Viên - Tháng Hiện Tại",
+      "period": "Tháng 09/2026",
+      "department": "Tất cả",
+      "sort_by": "kpi_score_desc"
+    }
+  },
+  {
+    "id": "comp_task_kanban_board",
+    "name": "TaskKanbanBoard",
+    "module": "task",
+    "title": "Bảng Kanban Quản Lý Task",
+    "description": "Component bảng Kanban trực quan quản lý tiến độ công việc theo các cột Todo, In Progress, Review, Done",
+    "keywords": ["kanban", "quản lý task", "công việc", "tiến độ", "dự án", "task board"],
+    "props_schema": {
+      "board_title": {"type": "string", "required": true, "description": "Tên bảng công việc"},
+      "columns": {"type": "array", "default": ["Cần làm", "Đang xử lý", "Chờ duyệt", "Hoàn thành"]},
+      "allow_drag_drop": {"type": "boolean", "default": true}
+    },
+    "data_binding": {
+      "fetch_api": "/tasks",
+      "method": "GET"
+    },
+    "sample_props": {
+      "board_title": "Dự án Nâng cấp Hệ thống Synapse",
+      "columns": ["Cần làm", "Đang xử lý", "Chờ duyệt", "Hoàn thành"],
+      "allow_drag_drop": true
+    }
+  },
+  {
+    "id": "comp_metric_stat_card",
+    "name": "MetricStatCard",
+    "module": "dashboard",
+    "title": "Thẻ Thống Kê Chỉ Số Nhanh",
+    "description": "Component hiển thị các chỉ số đo lường chính (RAM, CPU, tỷ lệ hoàn thành, doanh thu)",
+    "keywords": ["chỉ số", "thống kê", "metric", "ram", "cpu", "dashboard"],
+    "props_schema": {
+      "label": {"type": "string", "required": true},
+      "value": {"type": "string", "required": true},
+      "change_rate": {"type": "string", "required": false},
+      "status": {"type": "string", "enum": ["normal", "warning", "critical"], "default": "normal"}
+    },
+    "sample_props": {
+      "label": "Tỷ lệ hoàn thành công việc",
+      "value": "94.8%",
+      "change_rate": "+3.2% so với tháng trước",
+      "status": "normal"
+    }
+  }
+]

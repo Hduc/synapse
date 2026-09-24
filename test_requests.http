@@ -209,3 +209,128 @@ Accept: application/json
 ### 5.3 Từ chối thực thi lệnh đang chờ
 POST {{baseUrl}}/approvals/appr_e3942b1e/reject?reason=Nghi_van_bao_dong_gia
 Accept: application/json
+
+# ==============================================================================
+# 6. COMPONENT CATALOG API (Khai báo UI cho Next.js)
+# ==============================================================================
+
+### 6.1 Lấy toàn bộ Component Catalog
+GET {{baseUrl}}/components
+Accept: application/json
+
+### 6.2 Lọc Component theo module (form, report, task, dashboard)
+GET {{baseUrl}}/components?module=form
+Accept: application/json
+
+### 6.3 Khai báo thêm một React Component mới vào Catalog
+POST {{baseUrl}}/components
+Content-Type: application/json
+
+{
+  "name": "FeedbackSurveyModal",
+  "module": "feedback",
+  "title": "Modal Khảo Sát Ý Kiến Người Dùng",
+  "description": "Component popup khảo sát mức độ hài lòng CSAT và ý kiến đóng góp",
+  "keywords": ["khảo sát", "đánh giá", "góp ý", "feedback", "csat"],
+  "props_schema": {
+    "title": {"type": "string", "required": true},
+    "rating_stars": {"type": "number", "default": 5},
+    "comment_required": {"type": "boolean", "default": false}
+  },
+  "data_binding": {
+    "submit_api": "/api/feedback/submit",
+    "method": "POST"
+  },
+  "sample_props": {
+    "title": "Đánh giá trải nghiệm dịch vụ",
+    "rating_stars": 5,
+    "comment_required": false
+  }
+}
+
+
+# ==============================================================================
+# 7. DATA SOURCES API (Truy xuất Database & Query Templates)
+# ==============================================================================
+
+### 7.1 Lấy danh sách Data Sources
+GET {{baseUrl}}/datasources
+Accept: application/json
+
+### 7.2 Truy xuất dữ liệu từ Data Source (Ví dụ KPI nhân viên)
+POST {{baseUrl}}/datasources/ds_employee_kpi/fetch
+Content-Type: application/json
+
+{
+  "template_key": "top_performers"
+}
+
+
+# ==============================================================================
+# 8. TASK MODULE API
+# ==============================================================================
+
+### 8.1 Lấy danh sách Task
+GET {{baseUrl}}/tasks
+Accept: application/json
+
+### 8.2 Tạo Task mới
+POST {{baseUrl}}/tasks
+Content-Type: application/json
+
+{
+  "title": "Tích hợp UI Resolver vào Next.js App",
+  "description": "Kết nối API /resolve-ui để tự động render component",
+  "assigned_to": "Nguyễn Hoàng Đức",
+  "status": "todo",
+  "priority": "high",
+  "due_date": "2026-09-30"
+}
+
+
+# ==============================================================================
+# 9. USER BEHAVIORS API (Theo dõi hành vi người dùng)
+# ==============================================================================
+
+### 9.1 Ghi nhận hành vi người dùng
+POST {{baseUrl}}/behaviors/log
+Content-Type: application/json
+
+{
+  "user_id": "user_duc_01",
+  "action": "click_submit_registration",
+  "module": "form",
+  "details": {
+    "form_name": "EventRegistrationForm",
+    "event_name": "Trung Thu 2026"
+  }
+}
+
+### 9.2 Xem lịch sử hành vi người dùng
+GET {{baseUrl}}/behaviors?limit=20
+Accept: application/json
+
+
+# ==============================================================================
+# 10. DYNAMIC UI RESOLVER (Phân tích câu hỏi ra JSON render Next.js)
+# ==============================================================================
+
+### 10.1 Tạo form đăng ký sự kiện trung thu
+POST {{baseUrl}}/resolve-ui
+Content-Type: application/json
+
+{
+  "prompt": "tạo form đăng ký sự kiện trung thu",
+  "user_id": "user_duc_01",
+  "auto_execute_data": true
+}
+
+### 10.2 Xem báo cáo ai làm việc hiệu quả
+POST {{baseUrl}}/resolve-ui
+Content-Type: application/json
+
+{
+  "prompt": "xem báo cáo ai làm việc hiệu quả",
+  "user_id": "user_duc_01",
+  "auto_execute_data": true
+}

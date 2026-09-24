@@ -1,0 +1,72 @@
+[
+  {
+    "id": "beh_001",
+    "user_id": "user_duc_01",
+    "action": "query_prompt",
+    "module": "form",
+    "details": {
+      "prompt": "tạo form đăng ký sự kiện trung thu",
+      "resolved_component": "EventRegistrationForm"
+    },
+    "timestamp": 1790254000
+  },
+  {
+    "id": "beh_002",
+    "user_id": "user_duc_01",
+    "action": "view_report",
+    "module": "report",
+    "details": {
+      "prompt": "xem báo cáo ai làm việc hiệu quả",
+      "resolved_component": "EmployeeEfficiencyReportTable"
+    },
+    "timestamp": 1790254200
+  },
+  {
+    "id": "beh_41a9d831",
+    "user_id": "user_default",
+    "action": "resolve_ui",
+    "module": "form",
+    "details": {
+      "prompt": "tạo form đăng ký sự kiện trung thu",
+      "resolved_component": "EventRegistrationForm",
+      "confidence": 0.3051
+    },
+    "timestamp": 1790256255.5503712
+  },
+  {
+    "id": "beh_0dba3b5f",
+    "user_id": "user_default",
+    "action": "resolve_ui",
+    "module": "task",
+    "details": {
+      "prompt": "xem báo cáo ai làm việc hiệu quả",
+      "resolved_component": "TaskKanbanBoard",
+      "confidence": 0.117
+    },
+    "timestamp": 1790256255.663747
+  },
+  {
+    "id": "beh_e09e2cae",
+    "user_id": "user_default",
+    "action": "resolve_ui",
+    "module": "form",
+    "details": {
+      "prompt": "tạo form đăng ký sự kiện trung thu",
+      "resolved_component": "EventRegistrationForm",
+      "confidence": 0.95
+    },
+    "timestamp": 1790256598.031208
+  },
+  {
+    "id": "beh_e5a9900a",
+    "user_id": "user_default",
+    "action": "resolve_ui",
+    "module": "report",
+    "details": {
+      "prompt": "xem báo cáo ai làm việc hiệu quả",
+      "resolved_component": "EmployeeEfficiencyReportTable",
+      "confidence": 0.95
+    },
+    "timestamp": 1790256598.040489
+  }
+]

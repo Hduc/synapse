@@ -1,0 +1,27 @@
+[
+  {
+    "id": "ds_employee_kpi",
+    "name": "Employee KPI Database",
+    "type": "database",
+    "description": "Kho dữ liệu thống kê KPI, tiến độ công việc và đánh giá nhân viên",
+    "tables": ["employee_stats", "departments", "kpi_evaluations"],
+    "query_templates": {
+      "top_performers": "SELECT emp_name, dept, tasks_done, on_time_rate, kpi_score, rank FROM employee_stats ORDER BY kpi_score DESC LIMIT :limit",
+      "by_department": "SELECT emp_name, dept, tasks_done, on_time_rate, kpi_score FROM employee_stats WHERE dept = :dept ORDER BY kpi_score DESC"
+    },
+    "mock_data": [
+      {"emp_name": "Nguyễn Hoàng Đức", "dept": "R&D AI", "tasks_done": 28, "on_time_rate": "98%", "kpi_score": 96.5, "rank": "Xuất sắc"},
+      {"emp_name": "Trần Thị Mai", "dept": "Sản phẩm", "tasks_done": 24, "on_time_rate": "95%", "kpi_score": 92.0, "rank": "Tốt"},
+      {"emp_name": "Lê Văn Hưng", "dept": "Kỹ thuật", "tasks_done": 22, "on_time_rate": "91%", "kpi_score": 88.5, "rank": "Khá"},
+      {"emp_name": "Phạm Thu Trang", "dept": "Marketing", "tasks_done": 19, "on_time_rate": "89%", "kpi_score": 85.0, "rank": "Khá"}
+    ]
+  },
+  {
+    "id": "ds_event_registrations",
+    "name": "Event Registration Storage",
+    "type": "database",
+    "description": "Lưu trữ dữ liệu đăng ký các sự kiện và form biểu mẫu",
+    "tables": ["event_registrations", "events"],
+    "mock_data": []
+  }
+]
