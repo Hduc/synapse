@@ -6,7 +6,7 @@
     "trigger": {
       "question_key": "intent",
       "match_choice": "check_system_ram",
-      "min_confidence": 0.60
+      "min_confidence": 0.6
     },
     "require_approval": false,
     "active": true,
@@ -23,7 +23,7 @@
     "trigger": {
       "question_key": "intent",
       "match_choice": "check_temperature",
-      "min_confidence": 0.60
+      "min_confidence": 0.6
     },
     "require_approval": false,
     "active": true,
@@ -77,6 +77,36 @@
         "source": "laya_decision_engine"
       },
       "timeout": 15.0
+    }
+  },
+  {
+    "id": "rule_5c087303",
+    "name": "Bắn webhook khi phát hiện gian lận giao dịch",
+    "description": "Tự động gọi webhook bên ngoài khi phát hiện fraud",
+    "trigger": {
+      "question_key": "is_fraud",
+      "match_choice": null,
+      "min_confidence": 0.8,
+      "match_noul": true
+    },
+    "require_approval": false,
+    "active": true,
+    "action": {
+      "type": "api",
+      "url": "https://httpbin.org/post",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "auth": {
+        "type": "bearer",
+        "token": "***"
+      },
+      "json_body": {
+        "alert": "Phát hiện gian lận giao dịch!",
+        "details": "{{context.state}}"
+      },
+      "timeout": 10
     }
   }
 ]
