@@ -334,3 +334,44 @@ Content-Type: application/json
   "user_id": "user_duc_01",
   "auto_execute_data": true
 }
+
+# ==============================================================================
+# 11. INTERACTIVE CLARIFICATION & DYNAMIC SLOTS (Mục 1)
+# ==============================================================================
+
+### 11.1 Yêu cầu mơ hồ "tạo form" -> Hỏi lại kèm Quick Suggestion Chips
+POST {{baseUrl}}/resolve-ui
+Content-Type: application/json
+
+{
+  "prompt": "tạo form",
+  "user_id": "user_duc_01"
+}
+
+### 11.2 Yêu cầu mơ hồ "xem báo cáo" -> Hỏi lại kèm Quick Suggestion Chips
+POST {{baseUrl}}/resolve-ui
+Content-Type: application/json
+
+{
+  "prompt": "xem báo cáo",
+  "user_id": "user_duc_01"
+}
+
+### 11.3 Bóc tách tham số động: Top 3 Marketing tháng 8 -> Cập nhật Query & Props
+POST {{baseUrl}}/resolve-ui
+Content-Type: application/json
+
+{
+  "prompt": "xem báo cáo top 3 nhân viên xuất sắc phòng marketing trong tháng 8",
+  "user_id": "user_duc_01",
+  "auto_execute_data": true
+}
+
+### 11.4 Bóc tách tham số động Form: 50 người, 25/10 tại Hà Nội
+POST {{baseUrl}}/resolve-ui
+Content-Type: application/json
+
+{
+  "prompt": "tạo form đăng ký workshop AI cho 50 người ngày 25/10 tại Hà Nội",
+  "user_id": "user_duc_01"
+}

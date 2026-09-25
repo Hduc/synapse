@@ -14,6 +14,7 @@ Tích hợp:
 """
 
 import os
+import re
 import json
 import uuid
 import time
@@ -529,17 +530,140 @@ def get_user_behaviors(user_id: Optional[str] = None, module: Optional[str] = No
 
 
 # ==========================================
-# 5. DYNAMIC UI RESOLVER (LỰA CHỌN COMPONENT & PROPS CHO NEXT.JS)
+# 5. DYNAMIC UI RESOLVER, SLOT-FILLING & SUGGESTION CHIPS (NEXT.JS)
 # ==========================================
+
+def extract_slots_and_intent(prompt: str) -> Dict[str, Any]:
+    """Bóc tách tham số động (Dynamic Slots) & nhận diện yêu cầu làm rõ (Slot Clarification)."""
+    p = prompt.strip().lower()
+
+    # 1. Kiểm tra các câu hỏi quá ngắn, mơ hồ -> Cần hỏi lại (Interactive Clarification)
+    generic_form_words = ["tạo form", "làm form", "form", "form đăng ký", "tạo biểu mẫu", "mở form"]
+    generic_report_words = ["xem báo cáo", "báo cáo", "report", "cho xem báo cáo", "xem kpi", "kpi", "thống kê"]
+
+    # Trường hợp cần làm rõ cho Form
+    if p in generic_form_words or (len(p.split()) <= 2 and "form" in p):
+        return {
+            "needs_clarification": True,
+            "clarification_field": "form_type",
+            "message": "Bạn muốn tạo loại biểu mẫu đăng ký nào? Chọn nhanh bên dưới hoặc nhập chi tiết:",
+            "quick_suggestions": [
+                {
+                    "label": "🌕 Form Đêm Hội Trung Thu 2026",
+                    "prompt": "tạo form đăng ký sự kiện trung thu",
+                    "description": "Thu thập người tham gia, số điện thoại, phòng ban"
+                },
+                {
+                    "label": "🤖 Form Workshop AI (50 người tại Hà Nội)",
+                    "prompt": "tạo form đăng ký workshop AI cho 50 người ngày 25/10 tại Hà Nội",
+                    "description": "Khai báo số lượng 50 người, ngày 25/10"
+                },
+                {
+                    "label": "⛺ Form Đăng ký Teambuilding Công ty",
+                    "prompt": "tạo form đăng ký tham gia teambuilding",
+                    "description": "Đăng ký số lượng người và phòng ban tham gia"
+                }
+            ],
+            "slots": {}
+        }
+
+    # Trường hợp cần làm rõ cho Báo cáo
+    if p in generic_report_words or (len(p.split()) <= 2 and ("báo cáo" in p or "report" in p or "kpi" in p)):
+        return {
+            "needs_clarification": True,
+            "clarification_field": "report_type",
+            "message": "Bạn muốn xem báo cáo theo tiêu chí nào? Dưới đây là các bảng tổng hợp gợi ý:",
+            "quick_suggestions": [
+                {
+                    "label": "🏆 Báo cáo ai làm việc hiệu quả nhất",
+                    "prompt": "xem báo cáo ai làm việc hiệu quả",
+                    "description": "Bảng xếp hạng KPI toàn bộ nhân sự theo điểm số"
+                },
+                {
+                    "label": "🎯 Top 3 phòng Marketing tháng 8",
+                    "prompt": "xem báo cáo top 3 nhân viên xuất sắc phòng marketing trong tháng 8",
+                    "description": "Lọc Top 3 theo phòng ban Marketing và kỳ tháng 8"
+                },
+                {
+                    "label": "📊 Thống kê Kanban tiến độ công việc",
+                    "prompt": "xem bảng kanban tiến độ công việc",
+                    "description": "Xem trực quan trạng thái Todo, In Progress, Done"
+                }
+            ],
+            "slots": {}
+        }
+
+    # 2. Bóc tách Dynamic Slots từ câu lệnh tự nhiên
+    slots = {}
+
+    # Top K / Limit
+    m_top = re.search(r'top\s*(\d+)', p)
+    if m_top:
+        slots["limit"] = int(m_top.group(1))
+
+    # Số lượng người / vé / chỗ / người tham gia
+    m_att = re.search(r'(\d+)\s*(người|vé|khách|chỗ|suất|thành viên)', p)
+    if m_att:
+        slots["attendees_count"] = int(m_att.group(1))
+
+    # Phòng ban (Department)
+    dept_map = {
+        "marketing": "Marketing",
+        "kỹ thuật": "Kỹ thuật",
+        "kinh doanh": "Kinh doanh",
+        "nhân sự": "Nhân sự",
+        "r&d": "R&D AI",
+        "sản phẩm": "Sản phẩm",
+        "kế toán": "Kế toán"
+    }
+    for k, v in dept_map.items():
+        if k in p:
+            slots["department"] = v
+            break
+
+    # Kỳ đánh giá / Thời gian (Period)
+    m_m = re.search(r'tháng\s*(\d{1,2})', p)
+    if m_m:
+        slots["period"] = f"Tháng {int(m_m.group(1)):02d}/2026"
+    elif "quý 1" in p or "quý i" in p:
+        slots["period"] = "Quý 1/2026"
+    elif "quý 2" in p or "quý ii" in p:
+        slots["period"] = "Quý 2/2026"
+    elif "quý 3" in p or "quý iii" in p:
+        slots["period"] = "Quý 3/2026"
+    elif "quý 4" in p or "quý iv" in p:
+        slots["period"] = "Quý 4/2026"
+    elif "tuần này" in p:
+        slots["period"] = "Tuần này"
+    elif "tháng này" in p:
+        slots["period"] = "Tháng 09/2026"
+
+    # Ngày tổ chức (Date)
+    m_date = re.search(r'(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)', p)
+    if m_date:
+        slots["date"] = m_date.group(1)
+
+    # Địa điểm (Location)
+    m_loc = re.search(r'(tại|ở)\s+([^,.;]+)', p)
+    if m_loc:
+        slots["location"] = m_loc.group(2).strip().title()
+
+    return {
+        "needs_clarification": False,
+        "slots": slots
+    }
+
 
 @app.post("/resolve-ui", summary="Phân tích yêu cầu tự nhiên và tạo JSON render chuẩn cho Next.js")
 def resolve_ui(req: ResolveUIRequest):
-    """Giải quyết bài toán:
-    1. Tiếp nhận prompt (vd: 'tạo form đăng ký sự kiện trung thu' hoặc 'xem báo cáo ai làm việc hiệu quả').
-    2. Chạy Laya System 1 so khớp với danh mục Component và Intent.
-    3. Trích xuất props, parameters và câu truy vấn tương ứng.
-    4. Tự động liên kết Data Source nếu component cần dữ liệu.
-    5. Ghi log hành vi người dùng và trả về JSON chuẩn để Next.js render 100% không crash.
+    """Giải quyết trọn gói:
+    1. Tiếp nhận prompt (vd: 'tạo form', 'xem báo cáo' hoặc câu có param chi tiết).
+    2. Interactive Slot-Filling & Suggestion Chips: Nếu yêu cầu mơ hồ/thiếu thông tin -> Trả về 'needs_clarification' kèm Chips bấm nhanh.
+    3. Dynamic Slot Extraction: Tự động trích xuất các tham số động (limit, department, period, attendees_count, date, location).
+    4. Chạy Laya System 1 so khớp với danh mục Component và Intent.
+    5. Bơm params động vào Props & câu truy vấn (Query Template).
+    6. Tự động liên kết Data Source nếu component cần dữ liệu.
+    7. Ghi log hành vi người dùng và trả về JSON chuẩn để Next.js render 100% không crash.
     """
     components = read_json_file(COMPONENTS_FILE, [])
     if req.module_filter:
@@ -549,6 +673,31 @@ def resolve_ui(req: ResolveUIRequest):
         raise HTTPException(status_code=404, detail="Không có component nào khả dụng để phân tích")
 
     prompt_lower = req.prompt.lower().strip()
+
+    # Bước 1: Kiểm tra xem câu lệnh có cần hỏi lại / gợi ý nhanh không (Slot Clarification)
+    slot_info = extract_slots_and_intent(req.prompt)
+    if slot_info.get("needs_clarification"):
+        # Ghi log hành vi
+        log_user_behavior(UserBehaviorLog(
+            user_id=req.user_id,
+            action="prompt_needs_clarification",
+            module=req.module_filter or "general",
+            details={
+                "prompt": req.prompt,
+                "clarification_field": slot_info.get("clarification_field")
+            }
+        ))
+        return {
+            "status": "needs_clarification",
+            "prompt": req.prompt,
+            "message": slot_info.get("message"),
+            "clarification_field": slot_info.get("clarification_field"),
+            "quick_suggestions": slot_info.get("quick_suggestions", []),
+            "next_action": "suggest_chips",
+            "render_tree": None
+        }
+
+    extracted_slots = slot_info.get("slots", {})
 
     # Dùng Laya để phân loại ý định chính
     intent_criteria = {
@@ -601,7 +750,7 @@ def resolve_ui(req: ResolveUIRequest):
         matched_comp = components[0]
         confidence = 0.5
 
-    # Sinh props tương ứng dựa trên prompt
+    # Sinh props tương ứng & Bơm tham số động (Dynamic Slots Binding)
     resolved_props = dict(matched_comp.get("sample_props", {}))
     missing_slots = []
 
@@ -612,20 +761,35 @@ def resolve_ui(req: ResolveUIRequest):
             resolved_props["event_name"] = "Đêm Hội Trăng Rằm - Trung Thu 2026"
             resolved_props["event_date"] = "2026-09-25"
             resolved_props["location"] = "Hội trường lớn & Sân khấu ngoài trời"
-        elif "hội thảo" in prompt_lower:
-            resolved_props["title"] = "Đăng Ký Tham Dự Hội Thảo Công Nghệ"
-            resolved_props["event_name"] = "Hội Thảo Công Nghệ 2026"
+        elif "workshop" in prompt_lower or "hội thảo" in prompt_lower:
+            resolved_props["title"] = f"Đăng Ký Tham Dự: {req.prompt.capitalize()}"
+            resolved_props["event_name"] = "Workshop AI & Tự Động Hóa"
         else:
             resolved_props["title"] = f"Đăng Ký Sự Kiện: {req.prompt.capitalize()}"
 
+        # Bơm dynamic slots nếu có
+        if "date" in extracted_slots:
+            resolved_props["event_date"] = extracted_slots["date"]
+        if "location" in extracted_slots:
+            resolved_props["location"] = extracted_slots["location"]
+        if "attendees_count" in extracted_slots:
+            resolved_props["max_attendees"] = extracted_slots["attendees_count"]
+
     # Xử lý báo cáo hiệu quả nhân viên
     elif matched_comp["name"] == "EmployeeEfficiencyReportTable":
-        if "ai làm việc hiệu quả" in prompt_lower or "hiệu quả" in prompt_lower:
-            resolved_props["title"] = "Bảng Xếp Hạng Hiệu Quả Làm Việc & KPI Nhân Viên"
-            resolved_props["sort_by"] = "kpi_score_desc"
-            resolved_props["period"] = "Tháng 09/2026"
+        resolved_props["title"] = "Bảng Xếp Hạng Hiệu Quả Làm Việc & KPI Nhân Viên"
+        resolved_props["sort_by"] = "kpi_score_desc"
+        
+        if "department" in extracted_slots:
+            resolved_props["department"] = extracted_slots["department"]
+            resolved_props["title"] += f" - Phòng {extracted_slots['department']}"
+        if "period" in extracted_slots:
+            resolved_props["period"] = extracted_slots["period"]
+        if "limit" in extracted_slots:
+            resolved_props["limit"] = extracted_slots["limit"]
+            resolved_props["title"] = f"Top {extracted_slots['limit']} Nhân Viên Xuất Sắc"
 
-    # Xử lý data binding
+    # Xử lý data binding & thực thi query động
     data_payload = None
     data_binding = matched_comp.get("data_binding", {})
     if req.auto_execute_data and data_binding:
@@ -634,9 +798,33 @@ def resolve_ui(req: ResolveUIRequest):
             datasources = read_json_file(DATASOURCES_FILE, [])
             for ds in datasources:
                 if ds["id"] == "ds_employee_kpi":
+                    raw_rows = ds.get("mock_data", [])
+                    
+                    # Áp dụng bộ lọc động từ extracted slots
+                    filtered_rows = raw_rows
+                    if "department" in extracted_slots:
+                        target_dept = extracted_slots["department"].lower()
+                        filtered_rows = [r for r in filtered_rows if target_dept in r.get("dept", "").lower()]
+                        if not filtered_rows:
+                            # Nếu phòng ban không có sẵn trong mock, tạo mẫu đúng phòng ban
+                            filtered_rows = [
+                                {"emp_name": f"Chuyên viên {extracted_slots['department']}", "dept": extracted_slots['department'], "tasks_done": 26, "on_time_rate": "96%", "kpi_score": 94.0, "rank": "Xuất sắc"}
+                            ]
+
+                    if "limit" in extracted_slots:
+                        filtered_rows = filtered_rows[:extracted_slots["limit"]]
+
+                    # Cập nhật query template động
+                    sql_query = data_binding.get("query_template", "SELECT * FROM employee_stats")
+                    if "department" in extracted_slots:
+                        sql_query += f" WHERE dept = '{extracted_slots['department']}'"
+                    if "limit" in extracted_slots:
+                        sql_query += f" LIMIT {extracted_slots['limit']}"
+
                     data_payload = {
-                        "executed_query": data_binding.get("query_template"),
-                        "rows": ds.get("mock_data", [])
+                        "executed_query": sql_query,
+                        "rows": filtered_rows,
+                        "applied_filters": extracted_slots
                     }
                     break
         elif fetch_api and "tasks" in fetch_api:
@@ -653,7 +841,8 @@ def resolve_ui(req: ResolveUIRequest):
         details={
             "prompt": req.prompt,
             "resolved_component": matched_comp["name"],
-            "confidence": confidence
+            "confidence": confidence,
+            "extracted_slots": extracted_slots
         }
     ))
 
@@ -667,6 +856,7 @@ def resolve_ui(req: ResolveUIRequest):
         "props_schema": matched_comp.get("props_schema"),
         "data_binding": data_binding,
         "data": data_payload,
+        "extracted_slots": extracted_slots,
         "timestamp": time.time()
     }
 
@@ -676,6 +866,7 @@ def resolve_ui(req: ResolveUIRequest):
         "confidence": round(confidence, 4),
         "next_action": "render",
         "render_tree": render_tree,
+        "extracted_slots": extracted_slots,
         "missing_slots": missing_slots
     }
 

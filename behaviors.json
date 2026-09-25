@@ -68,5 +68,61 @@
       "confidence": 0.95
     },
     "timestamp": 1790256598.040489
+  },
+  {
+    "id": "beh_a319687c",
+    "user_id": "user_default",
+    "action": "prompt_needs_clarification",
+    "module": "general",
+    "details": {
+      "prompt": "tạo form",
+      "clarification_field": "form_type"
+    },
+    "timestamp": 1790299624.3775518
+  },
+  {
+    "id": "beh_e7766059",
+    "user_id": "user_default",
+    "action": "prompt_needs_clarification",
+    "module": "general",
+    "details": {
+      "prompt": "xem báo cáo",
+      "clarification_field": "report_type"
+    },
+    "timestamp": 1790299624.387153
+  },
+  {
+    "id": "beh_0384a4db",
+    "user_id": "user_default",
+    "action": "resolve_ui",
+    "module": "report",
+    "details": {
+      "prompt": "xem báo cáo top 3 nhân viên xuất sắc phòng marketing trong tháng 8",
+      "resolved_component": "EmployeeEfficiencyReportTable",
+      "confidence": 0.95,
+      "extracted_slots": {
+        "limit": 3,
+        "department": "Marketing",
+        "period": "Tháng 08/2026"
+      }
+    },
+    "timestamp": 1790299624.39653
+  },
+  {
+    "id": "beh_ee4af53a",
+    "user_id": "user_default",
+    "action": "resolve_ui",
+    "module": "form",
+    "details": {
+      "prompt": "tạo form đăng ký workshop AI cho 50 người ngày 25/10 tại Hà Nội",
+      "resolved_component": "EventRegistrationForm",
+      "confidence": 0.95,
+      "extracted_slots": {
+        "attendees_count": 50,
+        "date": "25/10",
+        "location": "Hà Nội"
+      }
+    },
+    "timestamp": 1790299624.405928
   }
 ]
